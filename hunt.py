@@ -5,12 +5,18 @@ from random import randint
 
 print("OpenCV Version:", cv2.__version__)
 
+# ---------------- CONFIG ----------------
 width, height = 1280, 720
 BIRD_SCALE = 0.4
 SCORE_PER_HIT = 50
-# Tuned for BLUE pen
-lower_color = np.array([100, 250, 150])
-upper_color = np.array([140, 255, 255])
+# ----------------------------------------
+
+# -------- COLOR RANGE (PINK / MAGENTA) --------
+# Tuned for pink pen
+lower_color = np.array([140, 80, 80])
+upper_color = np.array([170, 255, 255])
+
+# ---------------- LOAD IMAGES ----------------
 backGround = cv2.imread("park.jpg")
 bird_R = cv2.imread("bird_R.png", cv2.IMREAD_UNCHANGED)
 bird_L = cv2.imread("bird_L.png", cv2.IMREAD_UNCHANGED)
@@ -28,6 +34,7 @@ bird_L_copy = bird_L.copy()
 
 h_bird, w_bird, _ = bird_R.shape
 
+# ---------------- WEBCAM ----------------
 cam = cv2.VideoCapture(0)
 cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
@@ -38,6 +45,7 @@ bird_y = randint(100, height - 300)
 bird_dx = randint(4, 7)
 bird_dy = randint(3, 6)
 bird_dir = "R"
+
 score = 0
 hit_anim = False
 angle = 0
@@ -51,8 +59,8 @@ while True:
     frame = cv2.flip(frame, 1)
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    
-
+    # -------- MASK FOR PINK --------
+    mask = cv2.inRange(hsv, lower_color, upper_color)
 
     # Clean mask (VERY IMPORTANT)
     kernel = np.ones((5, 5), np.uint8)
@@ -78,20 +86,7 @@ while True:
     bird_img = bird_R if bird_dir == "R" else bird_L
     img = cvzone.overlayPNG(img, bird_img, (bird_x, bird_y))
 
-    # -------- DETECT BLUE PEN --------
-        #identifying blue  object (here pen)
-        # -------- MASK FOR BLUE --------
-    mask = cv2.inRange(hsv, lower_color, upper_color)
-    mask = cv2.GaussianBlur(mask, (7, 7), 0)
-    mask = cv2.erode(mask, None, iterations=2)
-    mask = cv2.dilate(mask, None, iterations=2) 
-    if (iterations := 2) > 0:
-        kernel = np.ones((3, 3), np.uint8)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=iterations)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=iterations)
-    mask = cv2.medianBlur(mask, 7)
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
+    # -------- DETECT PINK PEN --------
     if contours:
         largest = max(contours, key=cv2.contourArea)
         area = cv2.contourArea(largest)
@@ -142,7 +137,7 @@ while True:
                 1.5, (0, 255, 0), 3)
 
     cv2.imshow("BIRD HUNT", img)
-    cv2.imshow("MASK (BLUE)", mask)
+    cv2.imshow("MASK (PINK)", mask)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
