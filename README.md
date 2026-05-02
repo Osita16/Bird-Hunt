@@ -15,7 +15,8 @@ Instead of using a controller, this version uses **computer vision** to track a 
 ---
 
 ## Demo
-https://drive.google.com/file/d/1JT2ljJ6Phip4oxWmRwQe5fWFYt__g_Ws/view?usp=drive_link
+https://github.com/user-attachments/assets/580f06b5-0940-41f2-b1d2-6f3ea8e1c64e
+
 
 ## 🚀 Features
 
